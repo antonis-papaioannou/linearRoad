@@ -9,4 +9,4 @@ If you find this code useful in your research, please consider citing:
 
 [1] Antonis Papaioannou and Kostas Magoutis, Amoeba: Aligning Stream Processing Operators with Externally-Managed State, to appear in the 14th IEEE/ACM International Conference on Utility and Cloud Computing, Leicester, UK, December 2021
 
-We will make the source code available in the new few days. Please check again
+We will make the source code available in the next few days. Please check again
