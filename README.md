@@ -1,5 +1,5 @@
 # LinearRoad
-An implementation of the popular Linear Road stream processing benchmark compatible with Apache Flink.
+An implementation of the popular Linear Road stream processing benchmark compatible with Apache Flink stream processing platform.
 
 Linear Road simulates a tolling system on expressways of a metropolitan area based on variable pricing, i.e., tolls calculated based on dynamic factors such as traffic congestion and accident proximity. Linear Road processes position reports emitted periodically by every vehicle containing its position and speed on an expressway. Besides continuously-evaluated toll pricing and accident detection, the benchmark is also designed to answer historical queries (e.g., account balance and travel time estimates) that are issued less often.
 
@@ -8,5 +8,15 @@ The implementation of Linear Road used in this work fully leverages the stream-p
 If you find this code useful in your research, please consider citing:
 
 [1] Antonis Papaioannou and Kostas Magoutis, Amoeba: Aligning Stream Processing Operators with Externally-Managed State, to appear in the 14th IEEE/ACM International Conference on Utility and Cloud Computing, Leicester, UK, December 2021
+
+bibtex:
+* * @inproceedings{amoeba, 
+author = {Antonis, Papaioannou and Kostas, Magoutis}, 
+title = {Amoeba: Aligning Stream Processing Operators with Externally-Managed State}, 
+year = {2021}, 
+booktitle = {Proceedings of the 14th IEEE/ACM International Conference on Utility and Cloud Computing}, 
+location = {Leicester, UK}, 
+series = {UCC'21} 
+}* * 
 
 We will make the source code available in the next few days. Please check again
