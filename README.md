@@ -9,7 +9,7 @@ The implementation of Linear Road used in this work fully leverages the stream-p
 ## The benchmark
 The benchmark depends on the Kafka message broker(s) to ingest data and on Redis in-memory database to store traffic statistics used to calculate toll charges.
 
-###Build
+### Build
 The *benchmark* folder contains the source code of the benchmark. It is a maven project that can automatically resolve dependencies and build-package the benchmark.
   To build the benchmark execute the command:
   ```
@@ -17,34 +17,35 @@ The *benchmark* folder contains the source code of the benchmark. It is a maven 
   ```
 This process produces the packaged (jar) version of the benchmark under the name linerar_road-0.2.jar in the benchmark/target directory.
 
-###Configuration options
+### Configuration options
 The benchmark uses a configuration file (located in the benchmark/conf directory).
 The benchmark ingests data from Kafka topic (see section [The data generator](#the-data-generator) for more on the data generator we provide).
 It also uses an external Redis database to store statistics regarding traffic on different segments of the expressways.
 To specify the Redis and Kafka  hostnames and topics, use the configuration file.
 
-###Run
+### Run
 To run the benchmark as a Flink job you can use the Flink submit method.
 For the command line of the Flink Job Manager run the comand:
 ><path to flink bin>/bin/flink run <path-to-benchmark-target-dir>/linerar_road-0.2.jar <path-to-benchmark-conf-dir>/benchmarkConf.yaml
 
-##The data generator
+## The data generator
 The benchmark is accompanied with a data generator.
 The generator is a separate maven project located in the corresponding folder.
 
-###Build
+### Build
 To build the generator execute the command (within the generator folder):
 ```
 mvn clean package
 ```
 
-###Run
+### Run
 The generator creates sample data that can be stored in data files or import directly to the Kafka brokers.
 It is also customizable regarding the number of expressways, the number of vehicles per expressway and the duration of the simulation time.
 It also produces a log file with the accidents that occur and expect from the benchmark to identify them as it consumes the input data stream.
 
 To run the generator execute the command:
->mvn exec:java -Dexec.args="<parameters>"
+>mvn exec:java -Dexec.args="\<parameters\>"
+
 where parameters:
 ```
 -x <number>  # the number of expressways
