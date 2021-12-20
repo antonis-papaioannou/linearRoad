@@ -65,14 +65,22 @@ If you find this code useful in your research, please consider citing:
 [1] Antonis Papaioannou and Kostas Magoutis, Amoeba: Aligning Stream Processing Operators with Externally-Managed State, to appear in the 14th IEEE/ACM International Conference on Utility and Cloud Computing, Leicester, UK, December 2021
 
 bibtex:
-  *@inproceedings{amoeba, 
-  author = {Antonis, Papaioannou and Kostas, Magoutis}, 
-  title = {Amoeba: Aligning Stream Processing Operators with Externally-Managed State}, 
-  year = {2021}, 
-  booktitle = {Proceedings of the 14th IEEE/ACM International Conference on Utility and Cloud Computing}, 
-  location = {Leicester, UK}, 
-  series = {UCC'21} 
-  }*
+  
+@inproceedings{10.1145/3468737.3494096,  
+author = {Papaioannou, Antonis and Magoutis, Kostas},  
+title = {Amoeba: Aligning Stream Processing Operators with Externally-Managed State},  
+year = {2021},  
+isbn = {9781450385640},  
+publisher = {Association for Computing Machinery},  
+address = {New York, NY, USA},  
+url = {https://doi.org/10.1145/3468737.3494096},  
+doi = {10.1145/3468737.3494096},  
+booktitle = {Proceedings of the 14th IEEE/ACM International Conference on Utility and Cloud Computing},  
+location = {Leicester, United Kingdom},  
+series = {UCC '21}  
+}  
+  
+The paper is also **available** online for **open access**: https://doi.org/10.1145/3468737.3494096  
 
 ### References
 1. [Apache Flink] (https://flink.apache.org)
