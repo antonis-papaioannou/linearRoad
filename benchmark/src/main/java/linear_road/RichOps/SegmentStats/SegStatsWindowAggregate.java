@@ -1,14 +1,16 @@
 package linear_road.RichOps.SegmentStats;
 
-import org.apache.flink.api.common.functions.AggregateFunction;
+import org.apache.flink.api.common.functions.RichAggregateFunction;
 import linear_road.Event;
 import org.apache.flink.api.java.tuple.Tuple2;
+import linear_road.EventTuple;
+import linear_road.LRTuple2;
 
 /**
 * The accumulator is used to keep a running sum and a count. The {@code getResult} method
 * computes the average.
 */
-public class SegStatsWindowAggregate implements AggregateFunction<Event, SegStatsAccumulator, Tuple2<Double,Integer>> {
+public class SegStatsWindowAggregate extends RichAggregateFunction<EventTuple, SegStatsAccumulator, LRTuple2<Double,Integer>> {
     @Override
 	public SegStatsAccumulator createAccumulator() {
         return new SegStatsAccumulator();
@@ -22,13 +24,13 @@ public class SegStatsWindowAggregate implements AggregateFunction<Event, SegStat
     }
    
     @Override
-    public SegStatsAccumulator add(Event value, SegStatsAccumulator acc) {
-        acc.addSpeed(value.vid, value.speed);
+    public SegStatsAccumulator add(EventTuple value, SegStatsAccumulator acc) {
+        acc.addSpeed(value.vid(), value.speed());
         return acc;
     }
    
     @Override
-    public Tuple2<Double,Integer> getResult(SegStatsAccumulator acc) {
-        return new Tuple2<>(acc.avgVelocity(), acc.uniqueVehiclesCount());
+    public LRTuple2<Double,Integer> getResult(SegStatsAccumulator acc) {
+        return new LRTuple2<>(acc.avgVelocity(), acc.uniqueVehiclesCount());
     }
 }

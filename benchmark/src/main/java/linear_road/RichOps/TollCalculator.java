@@ -4,7 +4,7 @@ import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.configuration.Configuration;
 
-import linear_road.Event;
+import linear_road.EventTuple;
 import linear_road.BenchmarkConfig;
 import linear_road.Redis.MyRedisClient;
 import linear_road.Redis.lettuce.*;
@@ -12,7 +12,7 @@ import linear_road.Util.PerformanceReporter;
 
 import java.util.Map;
 
-public class TollCalculator extends RichFlatMapFunction<Event, Event> {
+public class TollCalculator extends RichFlatMapFunction<EventTuple, EventTuple> {
 
     private String opName = "Toll";
     private String redisHost;
@@ -41,7 +41,7 @@ public class TollCalculator extends RichFlatMapFunction<Event, Event> {
     }
 
     @Override
-    public void flatMap(Event value, Collector<Event> out) throws Exception {
+    public void flatMap(EventTuple value, Collector<EventTuple> out) throws Exception {
         long start_ts_nano = System.nanoTime();
 
         String key = value.segID();

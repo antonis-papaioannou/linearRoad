@@ -6,15 +6,17 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 
-public class SegStatsProcessWindow extends ProcessWindowFunction<Tuple2<Double,Integer>, Tuple3<String, Double, Integer>, String, TimeWindow> {
+import linear_road.LRTuple2;
+import linear_road.LRTuple3;
+public class SegStatsProcessWindow extends ProcessWindowFunction<LRTuple2<Double,Integer>, LRTuple3<String, Double, Integer>, String, TimeWindow> {
 
     public void process(String key,
                         Context context,
-                        Iterable<Tuple2<Double,Integer>> averages,
-                        Collector<Tuple3<String, Double, Integer>> out) {
-        Tuple2<Double, Integer> result = averages.iterator().next();
+                        Iterable<LRTuple2<Double,Integer>> averages,
+                        Collector<LRTuple3<String, Double, Integer>> out) {
+        LRTuple2<Double, Integer> result = averages.iterator().next();
         double average = result.f0;
         int unique = result.f1;
-        out.collect(new Tuple3<>(key, average, unique));
+        out.collect(new LRTuple3<>(key, average, unique));
     }
 }

@@ -5,7 +5,7 @@ import org.apache.flink.configuration.Configuration;
 
 import java.util.HashMap;
 
-import linear_road.Event;
+import linear_road.EventTuple;
 import linear_road.Util.LoggingUtil;
 import linear_road.Util.PerformanceReporter;
 import linear_road.BenchmarkConfig;
@@ -13,9 +13,9 @@ import linear_road.BenchmarkConfig;
 /**
  *
  */
-public class VehicleStateMemory extends RichMapFunction<Event, Event> {
+public class VehicleStateMemory extends RichMapFunction<EventTuple, EventTuple> {
 
-    private HashMap<Integer, Event> previousPositionReport;
+    private HashMap<Integer, EventTuple> previousPositionReport;
     private PerformanceReporter performanceReporter = null;
     private boolean monitorOp;
     
@@ -25,18 +25,18 @@ public class VehicleStateMemory extends RichMapFunction<Event, Event> {
 
     @Override
     public void open(Configuration config) {
-        previousPositionReport = new HashMap<Integer, Event>();
+        previousPositionReport = new HashMap<Integer, EventTuple>();
         if (monitorOp) {
             performanceReporter = new PerformanceReporter("VState");
         }
     }
 
     @Override
-    public Event map(Event value) throws Exception {
+    public EventTuple map(EventTuple value) throws Exception {
         boolean debug = false;
         long start_ts_nano = System.nanoTime();
 
-        Event e = previousPositionReport.get(value.getVid());
+        EventTuple e = previousPositionReport.get(value.getVid());
             
         // New Vehicle (not seen before)
         if (e == null) {
@@ -46,17 +46,17 @@ public class VehicleStateMemory extends RichMapFunction<Event, Event> {
         }
 
         boolean moving = true;
-        if ( (e.segment != value.segment) || (e.lane == 4) ) { // if the car exited after last position report
+        if ( (e.segment() != value.segment()) || (e.lane() == 4) ) { // if the car exited after last position report
             value.isCrossing = true;
         } else {
-            if (e.xway.equals(value.xway) && e.lane.equals(value.lane) &&
-                (e.segment == value.segment) && e.position.equals(value.position)) {
+            if ((e.xway() == value.xway()) && (e.lane() == value.lane()) &&
+                (e.segment() == value.segment()) && (e.position() == value.position())) {
                 e.samePositionCounter++;
                 value.samePositionCounter = e.samePositionCounter;
                 moving = false;
 
                 if (debug) {
-                    System.out.println(LoggingUtil.pointInCode() + " vid " + value.vid + " samePositionCounter " + e.samePositionCounter  + " tuple " + value.toString());
+                    System.out.println(LoggingUtil.pointInCode() + " vid " + value.vid() + " samePositionCounter " + e.samePositionCounter  + " tuple " + value.toString());
                 }
             }
 
@@ -65,10 +65,10 @@ public class VehicleStateMemory extends RichMapFunction<Event, Event> {
                 // System.out.println("Accident: " + value.toString());
 
                 if (debug) {
-                    System.out.println(LoggingUtil.pointInCode() + " vid " + value.vid + 
-                                    " stopped pos (" + value.xway + "," + value.segment + ") " +
+                    System.out.println(LoggingUtil.pointInCode() + " vid " + value.vid() + 
+                                    " stopped pos (" + value.xway() + "," + value.segment() + ") " +
                                     "samePosition " + value.samePositionCounter + 
-                                    " currTime " + value.time);
+                                    " currTime " + value.time());
                 }
             }
         }
@@ -76,13 +76,14 @@ public class VehicleStateMemory extends RichMapFunction<Event, Event> {
         // The vehicle was stopped and just started moving
         if ( (e.isStopped()) && (moving) ) {
             e.samePositionCounter = 0;
-            value.cleared = true;
+            value.setCleared(true);
+            // value.cleared = true;
 
             if (debug) {
                 System.out.println(LoggingUtil.pointInCode() + 
-                                " Restart vid " + value.vid + 
-                                " pos (" + value.xway + "," + value.segment + ")" + 
-                                " currTime " + value.time);
+                                " Restart vid " + value.vid() + 
+                                " pos (" + value.xway() + "," + value.segment() + ")" + 
+                                " currTime " + value.time());
             }
         }
 

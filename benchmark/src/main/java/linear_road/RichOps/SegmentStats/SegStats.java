@@ -8,11 +8,12 @@ import org.apache.flink.api.java.tuple.Tuple3;
 import linear_road.Redis.MyRedisClient;
 import linear_road.Redis.lettuce.*;
 import linear_road.BenchmarkConfig;
+import linear_road.LRTuple3;
 
 /**
  *
  */
-public class SegStats extends RichFlatMapFunction<Tuple3<String,Double, Integer>, Double> {
+public class SegStats extends RichFlatMapFunction<LRTuple3<String,Double, Integer>, Double> {
 
     private String redisHost;
     private boolean redisClusterMode;
@@ -36,7 +37,7 @@ public class SegStats extends RichFlatMapFunction<Tuple3<String,Double, Integer>
 
     @Override
     //Tuple3: f0: segID (key), f1: avg velocity, f2: unique vehicles
-    public void flatMap(Tuple3<String,Double, Integer> value, Collector<Double> out) throws Exception {
+    public void flatMap(LRTuple3<String,Double, Integer> value, Collector<Double> out) throws Exception {
         redis.hmset_segstats(value.f0, value.f1, value.f2);
         // System.out.println(LoggingUtil.timestamp() + " SegStats: " + value.f0 + " " + value.f1 + " " + value.f2);
         // out.collect(value.f1);

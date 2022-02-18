@@ -4,12 +4,13 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
 import org.apache.flink.streaming.util.serialization.SimpleStringSchema;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+// import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import linear_road.RichOps.*;
 import linear_road.RichOps.SegmentStats.*;
 
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.assigners.SlidingEventTimeWindows;
+import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 
 /**
@@ -33,12 +34,12 @@ public class StreamingJob {
 		// The source overwrites the event timestamp from the time field in the payload
 		DataStream<String> rawMessageStream = streamSource(config, env);
 
-		DataStream<Event> tuples = rawMessageStream
+		DataStream<EventTuple> tuples = rawMessageStream
 				.flatMap(new InputParser()).name("deserialize");
 
-		DataStream<Event> vehicleState = tuples
+		DataStream<EventTuple> vehicleState = tuples
 				.filter(s -> s.getType() == TYPE_POSITION_REPORT) 
-				.keyBy(s -> s.vid)
+				.keyBy(s -> s.vid())
 				.map(new VehicleStateMemory(config)).name("VStateMemory");
 
 	    // Segment statistics
@@ -49,7 +50,7 @@ public class StreamingJob {
 				.flatMap(new SegStats(config)).name("SegStats");
 
 		
-		DataStream<Event> partitionedStateOnSegment = vehicleState
+		DataStream<EventTuple> partitionedStateOnSegment = vehicleState
 				.keyBy(s -> s.segID);
 
 		// Accident Notification
@@ -62,7 +63,7 @@ public class StreamingJob {
 				.flatMap(new TollCalculator(config)).name("Toll");
 
 		// execute program
-		env.execute("Antonis LinearRoad");
+		env.execute("FlinkTuple LinearRoad");
 	}
 
 	/**
@@ -74,15 +75,24 @@ public class StreamingJob {
 		FlinkKafkaConsumer<String> source = new FlinkKafkaConsumer<>(
 															config.kafkaTopic,
 															new SimpleStringSchema(),
-															config.getParameters().getProperties());
+															config.getParameters().getProperties()
+															);
 	
-		WatermarkStrategy<String> wmStrategy = WatermarkStrategy
-          			.<String>forMonotonousTimestamps()
-					.<String>withTimestampAssigner((event, timestamp) -> ((Long.valueOf(event.split(",")[1]))*1000) ); //convert sec to ms
+		// WatermarkStrategy<String> wmStrategy = WatermarkStrategy
+        //   			.<String>forMonotonousTimestamps()
+		// 			.<String>withTimestampAssigner((event, timestamp) -> ((Long.valueOf(event.split(",")[1]))*1000) ); //convert sec to ms
 
-		source.assignTimestampsAndWatermarks(wmStrategy);
-									
+		source.assignTimestampsAndWatermarks(new AscendingTimestampExtractor<String>() {
+			@Override
+			public long extractAscendingTimestamp(String event) {
+				return ((Long.valueOf(event.split(",")[1]))*1000);
+			}
+		});
+
+		// .<String>withTimestampAssigner((event, timestamp) -> ((Long.valueOf(event.split(",")[1]))*1000)));
+		
+							
 		return env.addSource(source, "kafkaSrc");
-	}
+	  }
 
 }

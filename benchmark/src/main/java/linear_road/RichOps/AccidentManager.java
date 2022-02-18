@@ -9,10 +9,11 @@ import linear_road.Redis.MyRedisClient;
 import linear_road.Redis.lettuce.*;
 import linear_road.Util.LoggingUtil;
 import linear_road.Util.PerformanceReporter;
+import linear_road.EventTuple;
 
 import java.util.Map;
 
-public class AccidentManager extends RichMapFunction<Event, Event> {
+public class AccidentManager extends RichMapFunction<EventTuple, EventTuple> {
     private String opName = "AccManager";
     private String redisHost;
     private boolean redisClusterMode;
@@ -41,7 +42,7 @@ public class AccidentManager extends RichMapFunction<Event, Event> {
     }
 
     @Override
-    public Event map(Event value) throws Exception {
+    public EventTuple map(EventTuple value) throws Exception {
         long start_ts_nano = System.nanoTime();
 
         int accident = 0;
@@ -62,15 +63,15 @@ public class AccidentManager extends RichMapFunction<Event, Event> {
             String key = value.segID();
 
             if (involvedCar1 == -1) { // set the 1st stopped car of the segment (a 2nd stopped car will result in accident in the future)
-                redis.hset_firstStoppedCar(key, value.vid);
+                redis.hset_firstStoppedCar(key, value.vid());
                 // System.out.println(LoggingUtil.pointInCode() + " first involved vid " + value.vid + " seg " + value.segID + " currTime: " + value.time);
             } else {    // this is the second stopped car detected = accident
-                if (value.vid == involvedCar1) { //sanity check
-                    System.out.println(LoggingUtil.pointInCode() + " WARN vid " + value.vid + " (involved1 " + involvedCar1 + ") already stopped at seg " + value.segID() + " currTime: " + value.time + " samePosition " + value.samePositionCounter);
+                if (value.vid() == involvedCar1) { //sanity check
+                    System.out.println(LoggingUtil.pointInCode() + " WARN vid " + value.vid() + " (involved1 " + involvedCar1 + ") already stopped at seg " + value.segID() + " currTime: " + value.time() + " samePosition " + value.samePositionCounter);
                 } else {
                     long emit = System.currentTimeMillis() - value.ingestTime;
-                    System.out.println(LoggingUtil.timestamp() + " Accident detected: " + " emit = " + emit + " vid1 = " + involvedCar1 + " v2 " + value.vid + " time: " + value.time + " seg " + value.segID() + " AccidentManager");
-                    redis.hmset_accident(key, value.vid);
+                    System.out.println(LoggingUtil.timestamp() + " Accident detected: " + " emit = " + emit + " vid1 = " + involvedCar1 + " v2 " + value.vid() + " time: " + value.time() + " seg " + value.segID() + " AccidentManager");
+                    redis.hmset_accident(key, value.vid());
                 }
             }
         }
@@ -81,7 +82,7 @@ public class AccidentManager extends RichMapFunction<Event, Event> {
             String key = value.segID();
             redis.hmset_clearAccident(key);
             long emit = System.currentTimeMillis() - value.ingestTime;
-            System.out.println(LoggingUtil.timestamp() + " Accident cleared: "+ " emit = " + emit + " vid = " + value.vid + " time: " + value.time);
+            System.out.println(LoggingUtil.timestamp() + " Accident cleared: "+ " emit = " + emit + " vid = " + value.vid() + " time: " + value.time());
         }
 
         if (monitorOp) {

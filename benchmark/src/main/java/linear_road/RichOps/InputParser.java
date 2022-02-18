@@ -4,25 +4,26 @@ import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 
-import linear_road.Event;
+// import linear_road.Event;
+import linear_road.EventTuple;
 
-public class InputParser extends RichFlatMapFunction<String, Event> {
+public class InputParser extends RichFlatMapFunction<String, EventTuple> {
 
     @Override
     public void open(Configuration config) { }
 
     @Override
-    public void flatMap(String input, Collector<Event> out) throws Exception {
+    public void flatMap(String input, Collector<EventTuple> out) throws Exception {
         if ( (input == null) || (input.isEmpty()) ) {
             return;
         }
-        Event e = parseFromString(input);
+        EventTuple e = parseFromString(input);
 
         out.collect(e);
     }
 
 
-    private Event parseFromString(String s) {
+    private EventTuple parseFromString(String s) {
         String[] arr = s.split(",");
 
         int type = Integer.parseInt(arr[0]);
@@ -38,7 +39,7 @@ public class InputParser extends RichFlatMapFunction<String, Event> {
         int day = (Integer.parseInt(arr[14]));
         int minute = (time / 60 + 1); 
 
-        Event e = new Event(type, time, vid, speed, xway, lane, direction, segment, position, qid, day, minute);
+        EventTuple e = new EventTuple(type, time, vid, speed, xway, lane, direction, segment, position, qid, day, minute);
         e.ingestTime = System.currentTimeMillis();
         return e;
       }
